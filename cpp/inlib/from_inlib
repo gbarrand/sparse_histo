@@ -10,8 +10,8 @@ build_dir=`pwd`
 #/// inlib ////////////////////////////////////
 #//////////////////////////////////////////////
 cd ${build_dir}
-/bin/mkdir -p test/cpp
-cd test/cpp
+/bin/mkdir -p example
+cd example
 from=${save_dir}/../../../inexlib/inlib/examples/cpp
 /bin/cp ${from}/shisto.cpp .
 
