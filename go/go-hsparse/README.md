@@ -9,12 +9,14 @@ analysis library.)
 Install `go` and then:
 
 ```sh
-$ go get github.com/gbarrand/sparse_histo/...
+$ git clone git://github.com/gbarrand/sparse_histo
+$ cd sparse_histo/go/go-hsparse
+$ make
 ```
 
 ## Use
 
 ```sh
-$ go-hsparse
+$ ./go-hsparse
  h1d.Fill(10000000) = 656.092226ms (mean=-0.500000000003953 rms=2.8722813232916278)
 ```
