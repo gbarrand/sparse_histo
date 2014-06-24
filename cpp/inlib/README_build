@@ -1,4 +1,7 @@
 
-c++ -O2 -I. hcontest.cpp
-./a.out
+by hand :
+  UNIX> c++ -O2 -I. hcontest.cpp
+  UNIX> ./a.out
 
+or :
+  UNIX> make
