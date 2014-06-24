@@ -1,0 +1,101 @@
+// Copyright (C) 2010, Guy Barrand. All rights reserved.
+// See the file inlib.license for terms.
+
+#ifndef inlib_histo_sh1
+#define inlib_histo_sh1
+
+#include "sb1"
+
+namespace inlib {
+namespace histo { //have that for h1 ?
+
+//TC is for a coordinate.
+//TO is for an offset used to identify a bin.
+//TN is for a number of entries.
+//TW is for a weight.
+//TH is for a height. Should be the same as TW.
+
+template <class TC,class TO,class TN,class TW,class TH>
+class sh1 : public sb1<TC,TO,TN,TW,TH> {
+  typedef sb1<TC,TO,TN,TW,TH> parent;
+public:
+  typedef typename sb1<TC,TO,TN,TW,TH>::bn_t bn_t;
+  typedef sbin<TC,TN,TW> bin_t;
+  typedef shisto_data<TC,TO,TN,TW> shd_t;
+protected:
+  virtual TH get_bin_height(const bin_t& a_bin) const {return a_bin.m_Sw;}
+public:
+  virtual TH bin_error(int aI) const { //TH should be the same as TW
+    bin_t* bin;
+    if(!parent::_find_bin(aI,bin)) return 0;
+    return ::sqrt(bin->m_Sw2);
+  }
+
+public:
+  void multiply(TW a_factor){
+    parent::base_multiply(a_factor);
+    parent::update_fast_getters();
+  }
+  void scale(TW a_factor) {multiply(a_factor);}
+
+  void copy_from_data(const shd_t& a_from) {parent::base_from_data(a_from);}
+  shd_t get_histo_data() const {return parent::base_get_data();}
+
+  bool reset() {
+    parent::base_reset();
+    parent::update_fast_getters();
+    return true;
+  }
+
+  bool fill(TC aX,TW aWeight = 1) {
+    if(parent::m_dimension!=1) return false;
+    bn_t ibin;
+    if(!parent::m_axes[0].coord_to_absolute_index(aX,ibin)) return false;
+    TO offset = ibin;
+
+    bin_t* bin;
+    if(!parent::find_bin(offset,bin)) {
+      bin = new bin_t(parent::m_dimension);
+      parent::m_bins[offset] = bin;
+    }
+
+    bin->m_entries++;
+    bin->m_Sw += aWeight;
+    bin->m_Sw2 += aWeight * aWeight;
+  
+    TC xw = aX * aWeight;
+    TC x2w = aX * xw;
+    bin->m_Sxw[0] += xw;
+    bin->m_Sx2w[0] += x2w;
+
+    return true;
+  }
+
+  bool add(const sh1& a_histo){
+    parent::base_add(a_histo);
+    parent::update_fast_getters();
+    return true;
+  }
+public:
+  sh1(const std::string& a_title,bn_t aXnumber,TC aXmin,TC aXmax)
+  :parent(a_title,aXnumber,aXmin,aXmax){}
+
+  sh1(const std::string& a_title,const std::vector<TC>& aEdges)
+  :parent(a_title,aEdges){}
+
+  virtual ~sh1(){}
+public:
+  sh1(const sh1& a_from): parent(a_from){}
+  sh1& operator=(const sh1& a_from){
+    parent::operator=(a_from);
+    return *this;
+  }
+};
+
+}}
+
+#endif
+
+
+
+

@@ -1,0 +1,142 @@
+// Copyright (C) 2010, Guy Barrand. All rights reserved.
+// See the file inlib.license for terms.
+
+#ifndef inlib_histo_histo_data
+#define inlib_histo_histo_data
+
+#include <vector>
+#include <map> //for annotations
+
+#include "axes"
+
+namespace inlib {
+namespace histo {
+
+//TC is for a coordinate.
+//TO is for an offset used to identify a bin.
+//TN is for a number of entries.
+//TW is for a weight.
+
+template <class TC,class TO,class TN,class TW>
+class histo_data {
+public:
+  typedef axis<TC,TO> axis_t;
+  typedef unsigned int dim_t;
+public:
+  histo_data()
+  :m_dimension(0)
+  ,m_bin_number(0)
+  {}
+public:
+  histo_data(const histo_data& a_from)
+  :m_title(a_from.m_title)
+  ,m_dimension(a_from.m_dimension)
+  ,m_bin_number(a_from.m_bin_number)
+  ,m_bin_entries(a_from.m_bin_entries)
+  ,m_bin_Sw(a_from.m_bin_Sw)
+  ,m_bin_Sw2(a_from.m_bin_Sw2)
+  ,m_bin_Sxw(a_from.m_bin_Sxw)
+  ,m_bin_Sx2w(a_from.m_bin_Sx2w)
+  ,m_axes(a_from.m_axes)
+  ,m_annotations(a_from.m_annotations)
+  {}
+
+  histo_data& operator=(const histo_data& a_from) {
+    m_title = a_from.m_title;
+    m_dimension = a_from.m_dimension;
+    m_bin_number = a_from.m_bin_number;
+    m_bin_entries = a_from.m_bin_entries;
+    m_bin_Sw = a_from.m_bin_Sw;
+    m_bin_Sw2 = a_from.m_bin_Sw2;
+    m_bin_Sxw = a_from.m_bin_Sxw;
+    m_bin_Sx2w = a_from.m_bin_Sx2w;
+    m_axes = a_from.m_axes;
+    m_annotations = a_from.m_annotations;
+    return *this;
+  }
+
+  virtual ~histo_data(){}
+
+public:
+
+  // for inlib/rroot/streamers :
+  TW get_Sw() const {
+    TW sw = 0;
+    for(TO ibin=0;ibin<m_bin_number;ibin++) {
+      if(!histo::is_out(m_axes,ibin)) {
+        sw += m_bin_Sw[ibin];
+      }
+    }
+    return sw;
+  }
+  TN get_all_entries() const {
+    TN number = 0;
+    for(TO ibin=0;ibin<m_bin_number;ibin++) {
+      number += m_bin_entries[ibin];
+    }
+    return number;
+  }
+
+  // for inlib/wroot/streamers :
+  TN get_entries() const {
+    TN number = 0;
+    for(TO ibin=0;ibin<m_bin_number;ibin++) {
+      if(!histo::is_out(m_axes,ibin)) {
+        number += m_bin_entries[ibin];
+      }
+    }
+    return number;
+  }
+
+  TW get_Sw2() const {
+    TW sw2 = 0;
+    for(TO ibin=0;ibin<m_bin_number;ibin++) {
+      if(!histo::is_out(m_axes,ibin)) {
+        sw2 += m_bin_Sw2[ibin];
+      }
+    }
+    return sw2;
+  }
+
+  bool get_ith_axis_Sxw(dim_t a_axis,TC& a_value) const {
+    a_value = 0;
+    if(a_axis>=m_dimension) return false;
+    for(TO ibin=0;ibin<m_bin_number;ibin++) {
+      if(!histo::is_out(m_axes,ibin)) {
+        a_value += m_bin_Sxw[ibin][a_axis];
+      }
+    }
+    return true;
+  }
+
+  bool get_ith_axis_Sx2w(dim_t a_axis,TC& a_value) const {
+    a_value = 0;
+    if(a_axis>=m_dimension) return false;
+    for(TO ibin=0;ibin<m_bin_number;ibin++) {
+      if(!histo::is_out(m_axes,ibin)) {
+        a_value += m_bin_Sx2w[ibin][a_axis];
+      }
+    }
+    return true;
+  }
+
+public:
+  // General :
+  std::string m_title;
+  dim_t m_dimension;
+  // Bins :
+  TO m_bin_number;
+  std::vector<TN> m_bin_entries;
+  std::vector<TW> m_bin_Sw;
+  std::vector<TW> m_bin_Sw2;
+  std::vector< std::vector<TC> > m_bin_Sxw;
+  std::vector< std::vector<TC> > m_bin_Sx2w;
+  // Axes :
+  std::vector<axis_t> m_axes;
+  // etc :
+  std::map<std::string,std::string> m_annotations;
+};
+
+}}
+
+#endif

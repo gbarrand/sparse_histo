@@ -1,0 +1,76 @@
+#!/bin/sh -f 
+
+save_dir=`pwd`
+
+#./check_app _upgrade '_upgrade not found.'
+#use_status=$?;if [ ${use_status} != 0 ] ; then exit ${use_status};fi
+build_dir=`pwd`
+
+#//////////////////////////////////////////////
+#/// inlib ////////////////////////////////////
+#//////////////////////////////////////////////
+cd ${build_dir}
+/bin/mkdir -p test/cpp
+cd test/cpp
+from=${save_dir}/../../../inexlib/inlib/examples/cpp
+/bin/cp ${from}/shisto.cpp .
+
+# histo :
+/bin/mkdir -p ${build_dir}/inlib/histo
+cd ${build_dir}/inlib/histo
+from=${save_dir}/../../../inexlib/inlib/inlib/histo
+/bin/cp ${from}/axis .
+/bin/cp ${from}/histo_data .
+/bin/cp ${from}/base_histo .
+/bin/cp ${from}/b1 .
+/bin/cp ${from}/b2 .
+/bin/cp ${from}/b3 .
+/bin/cp ${from}/h1 .
+/bin/cp ${from}/h1d .
+/bin/cp ${from}/h2 .
+/bin/cp ${from}/h2d .
+/bin/cp ${from}/h3 .
+/bin/cp ${from}/h3d .
+/bin/cp ${from}/shisto_data .
+/bin/cp ${from}/base_shisto .
+/bin/cp ${from}/sb1 .
+/bin/cp ${from}/sb2 .
+/bin/cp ${from}/sh1 .
+/bin/cp ${from}/sh1d .
+/bin/cp ${from}/sh2 .
+/bin/cp ${from}/sh2d .
+exit
+
+cd ${build_dir}/tools
+from=${save_dir}/../../inexlib/inlib/inlib
+/bin/cp ${from}/mem .
+/bin/cp ${from}/random .
+/bin/cp ${from}/forit .
+# for test/cpp/waxml.cpp :
+/bin/cp ${from}/sout .
+/bin/cp ${from}/sto .
+/bin/cp ${from}/version .
+/bin/cp ${from}/zfunc .
+# for osc streaming :
+/bin/cp ${from}/S_STRING .
+/bin/cp ${from}/store/iobj_visitor ./store/.
+/bin/cp ${from}/store/iobj_const_visitor ./store/.
+/bin/cp ${from}/store/osc_streamers ./store/.
+# for test/cpp/rroot.cpp :
+/bin/cp ${from}/vdata .
+/bin/cp ${from}/fileis .
+/bin/cp ${from}/signature .
+/bin/cp ${from}/gzip .
+# for test/cpp/rxrayfluo.cpp :
+/bin/cp ${from}/rntuple .
+# for test/cpp/rroot.cpp :
+/bin/cp ${from}/cmathT .
+/bin/cp ${from}/randT .
+/bin/cp ${from}/rtausmeui .
+/bin/cp ${from}/rtausmef .
+/bin/cp ${from}/rtausmed .
+/bin/cp ${from}/randd .
+
+cd ${save_dir}
+
+

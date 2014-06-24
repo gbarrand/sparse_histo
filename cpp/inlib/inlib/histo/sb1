@@ -1,0 +1,209 @@
+// Copyright (C) 2010, Guy Barrand. All rights reserved.
+// See the file inlib.license for terms.
+
+#ifndef inlib_histo_sb1
+#define inlib_histo_sb1
+
+#include "base_shisto"
+
+#include <ostream>
+
+namespace inlib {
+namespace histo {
+
+template <class TC,class TO,class TN,class TW,class TH>
+class sb1 : public base_shisto<TC,TO,TN,TW,TH> {
+  typedef base_shisto<TC,TO,TN,TW,TH> parent;
+protected:
+  enum {AxisX=0};
+public:
+  typedef histo::axis<TC,TO> axis_t;
+  typedef typename parent::bn_t bn_t;
+  typedef sbin<TC,TN,TW> bin_t;
+public:
+  virtual TH bin_error(int) const = 0; //for print
+public:
+  void update_fast_getters(){}
+
+  // Partition :
+  int coord_to_index(TC aCoord) const {
+    return axis().coord_to_index(aCoord);
+  }
+  TC mean() const {
+    TC value;
+    parent::get_ith_axis_mean(AxisX,value); //can return false.
+    return value;
+  }
+  TC rms() const {
+    TC value;
+    parent::get_ith_axis_rms(AxisX,value); //can return false.
+    return value;
+  }
+
+  // bins :
+  TN bin_entries(int aI) const {
+    bin_t* bin;
+    if(!_find_bin(aI,bin)) return 0;
+    return bin->m_entries;
+  }
+
+  TW bin_Sw(int aI) const {
+    bin_t* bin;
+    if(!_find_bin(aI,bin)) return 0;
+    return bin->m_Sw;
+  }
+
+  TW bin_Sw2(int aI) const {
+    bin_t* bin;
+    if(!_find_bin(aI,bin)) return 0;
+    return bin->m_Sw2;
+  }
+  TC bin_Sxw(int aI) const {
+    bin_t* bin;
+    if(!_find_bin(aI,bin)) return 0;
+    return bin->m_Sxw[AxisX];
+  }
+  TC bin_Sx2w(int aI) const {
+    bin_t* bin;
+    if(!_find_bin(aI,bin)) return 0;
+    return bin->m_Sx2w[AxisX];
+  }
+
+  TH bin_height(int aI) const {
+    bin_t* bin;
+    if(!_find_bin(aI,bin)) return 0;
+    return this->get_bin_height(*bin);
+  }
+
+  TC bin_center(int aI) const {
+    if(!parent::m_dimension) return 0;
+    return parent::m_axes[0].bin_center(aI);
+  }
+
+  TC bin_mean(int aI) const {
+    bin_t* bin;
+    if(!_find_bin(aI,bin)) return 0;
+    TW sw = bin->m_Sw;
+    if(sw==0) return 0;
+    return bin->m_Sxw[AxisX]/sw;
+  }
+
+  TC bin_rms(int aI) const {
+    bin_t* bin;
+    if(!_find_bin(aI,bin)) return 0;
+    TW sw = bin->m_Sw;
+    if(sw==0) return 0;
+    TC sxw = bin->m_Sxw[AxisX];
+    TC sx2w = bin->m_Sx2w[AxisX];
+    TC _mean = sxw/sw;
+    return ::sqrt(::fabs((sx2w / sw) - _mean * _mean));
+  }
+  // Axis :
+  const axis_t& axis() const {return parent::m_axes[0];}
+  axis_t& axis() {return parent::m_axes[0];} //touchy
+public:
+  //NOTE : print is a Python keyword.
+  void hprint(std::ostream& a_out) {
+    // A la HPRINT.
+    a_out << parent::dimension() << parent::title() << std::endl;
+    a_out 
+      << " * ENTRIES = " << parent::all_entries()
+      << " * ALL CHANNELS = " << parent::sum_bin_heights()
+      << " * UNDERFLOW = " << bin_height(axis_t::UNDERFLOW_BIN)
+      << " * OVERFLOW = " << bin_height(axis_t::OVERFLOW_BIN)
+      << std::endl;
+    a_out 
+      << " * BIN WID = " << axis().bin_width(0)
+      << " * MEAN VALUE = " << mean()
+      << " * R . M . S = " << rms()
+      << std::endl;
+  
+    // Some bins :
+    bn_t bins = axis().bins();
+    a_out 
+      << " * ENTRIES[0]   = " 
+      << bin_entries(0)    
+      << " * HEIGHT[0] = " 
+      << bin_height(0)    
+      << " * ERROR[0] = "     
+      << bin_error(0)    
+      << std::endl;
+    a_out 
+      << " * ENTRIES[N/2] = " 
+      << bin_entries(bins/2)    
+      << " * HEIGHT[N/2] = " 
+      << bin_height(bins/2)
+      << " * ERROR[N/2] = " 
+      << bin_error(bins/2)
+      << std::endl;
+    a_out 
+      << " * ENTRIES[N-1] = " 
+      << bin_entries(bins-1)    
+      << " * HEIGHT[N-1] = " 
+      << bin_height(bins-1)
+      << " * ERROR[N-1] = " 
+      << bin_error(bins-1)
+      << std::endl;
+  }
+protected:
+  sb1(const std::string& a_title,bn_t aXnumber,TC aXmin,TC aXmax){
+    parent::m_title = a_title;
+    std::vector<bn_t> nbins;
+    nbins.push_back(aXnumber);
+    std::vector<TC> mins;
+    mins.push_back(aXmin);
+    std::vector<TC> maxs;
+    maxs.push_back(aXmax);
+    parent::configure(1,nbins,mins,maxs);
+  }
+  sb1(const std::string& a_title,const std::vector<TC>& aEdges) {
+    parent::m_title = a_title;
+    std::vector< std::vector<TC> > edges(1);
+    edges[0] = aEdges;
+    parent::configure(1,edges);
+  }
+
+  virtual ~sb1(){}
+protected:
+  sb1(const sb1& a_from):parent(a_from) {
+    update_fast_getters();
+  }
+  sb1& operator=(const sb1& a_from) {
+    parent::operator=(a_from);
+    update_fast_getters();
+    return *this;
+  }
+
+public:
+  bool configure(bn_t aXnumber,TC aXmin,TC aXmax){
+    std::vector<bn_t> nbins;
+    nbins.push_back(aXnumber);
+    std::vector<TC> mins;
+    mins.push_back(aXmin);
+    std::vector<TC> maxs;
+    maxs.push_back(aXmax);
+    return parent::configure(1,nbins,mins,maxs);
+  }
+  bool configure(const std::vector<TC>& aEdges) {
+    std::vector< std::vector<TC> > edges(1);
+    edges[0] = aEdges;
+    return parent::configure(1,edges);
+  }
+
+protected:
+  bool _find_bin(int aI,bin_t*& a_bin) const {
+    if(!parent::m_dimension) {a_bin=0;return false;}
+    bn_t ibin;
+    if(!parent::m_axes[0].in_range_to_absolute_index(aI,ibin)) {a_bin=0;return 0;}
+    TO offset = ibin;
+    return parent::find_bin(offset,a_bin);
+  }
+};
+
+}}
+
+#endif
+
+
+
+

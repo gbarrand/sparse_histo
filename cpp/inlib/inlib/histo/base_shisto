@@ -1,0 +1,404 @@
+// Copyright (C) 2010, Guy Barrand. All rights reserved.
+// See the file inlib.license for terms.
+
+#ifndef inlib_histo_base_shisto
+#define inlib_histo_base_shisto
+
+#include "shisto_data"
+#include "axes"
+#include "../forit"
+
+#include <cmath>
+
+namespace inlib {
+namespace histo {
+
+//TC is for a coordinate.
+//TO is for an offset used to identify a bin.
+//TN is for a number of entries.
+//TW is for a weight.
+//TH is for a height.
+
+template <class TC,class TO,class TN,class TW,class TH>
+class base_shisto : protected shisto_data<TC,TO,TN,TW> {
+  typedef shisto_data<TC,TO,TN,TW> parent;
+private:
+  static const std::string& s_class() {
+    static const std::string s_v("inlib::histo::base_shisto");
+    return s_v;
+  }
+public:
+  typedef shisto_data<TC,TO,TN,TW> shd_t;
+  typedef axis<TC,TO> axis_t;
+  typedef typename axis<TC,TO>::bn_t bn_t;
+  typedef unsigned int dim_t;
+  typedef sbin<TC,TN,TW> bin_t;
+protected:
+  virtual TH get_bin_height(const bin_t&) const = 0;  //histo/profile
+protected:
+  void base_from_data(const shd_t& a_from) {parent::operator=(a_from);}
+  shd_t base_get_data() const {
+    shd_t hd;
+    hd = *this;
+    return hd;
+  }
+protected:
+  base_shisto():parent(){
+#ifdef INLIB_MEM
+    mem::increment(s_class().c_str());
+#endif
+  }
+protected:
+  virtual ~base_shisto(){
+#ifdef INLIB_MEM
+    mem::decrement(s_class().c_str());
+#endif
+  }
+protected:
+  base_shisto(const base_shisto& a_from):parent(a_from){
+#ifdef INLIB_MEM
+    mem::increment(s_class().c_str());
+#endif
+  }
+
+  base_shisto& operator=(const base_shisto& a_from) {
+    parent::operator=(a_from);
+    return *this;
+  }
+
+public:
+  const std::string& title() const {return parent::m_title;}
+  std::string title() {return parent::m_title;}
+  bool set_title(const std::string& a_title){parent::m_title = a_title;return true;}
+  dim_t dimension() const {return parent::m_dimension;}
+
+  TN entries() const { return get_entries();}
+  TN all_entries() const {
+    TN number = 0;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      number += (*it).second->m_entries;
+    }}
+    return number;
+  }
+  TN extra_entries() const {
+    TN number = 0;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      if(histo::is_out(parent::m_axes,(*it).first)) {
+        number += (*it).second->m_entries;
+      }
+    }}
+    return number;
+  }
+  TW equivalent_bin_entries() const {
+    TW sw = 0;
+    TW sw2 = 0;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      if(!histo::is_out(parent::m_axes,(*it).first)) {
+        sw += (*it).second->m_Sw;
+        sw2 += (*it).second->m_Sw2;
+      }
+    }}
+    if(sw2==0) return 0;
+    return (sw * sw)/sw2;
+  }
+  
+  TH sum_bin_heights() const {
+    TH sh = 0;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      if(!histo::is_out(parent::m_axes,(*it).first)) {
+        sh += get_bin_height(*((*it).second));
+      }
+    }}
+    return sh;
+  }
+
+  TH sum_all_bin_heights() const {
+    TH sh = 0;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      sh += get_bin_height(*((*it).second));
+    }}
+    return sh;
+  }
+
+  TH sum_extra_bin_heights() const {
+    TH sh = 0;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      if(histo::is_out(parent::m_axes,(*it).first)) {
+        sh += get_bin_height(*((*it).second));
+      }
+    }}
+    return sh;
+  }
+
+  TH min_bin_height() const {
+    TH value = 0;
+    bool first = true;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      if(!histo::is_out(parent::m_axes,(*it).first)) {
+        TH vbin = get_bin_height(*((*it).second));
+        if(first) {
+          first = false;
+          value = vbin;
+        } else {
+          if(vbin<=value) value = vbin;
+        }
+      }
+    }}
+    return value;
+  }
+  
+  TH max_bin_height() const {
+    TH value = 0;
+    bool first = true;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      if(!histo::is_out(parent::m_axes,(*it).first)) {
+        TH vbin = get_bin_height(*((*it).second));
+        if(first) {
+          first = false;
+          value = vbin;
+        } else {
+          if(vbin>=value) value = vbin;
+        }
+      }
+    }}
+    return value;
+  }
+
+protected:
+  enum {AxisX=0,AxisY=1,AxisZ=2};
+
+  bool configure(dim_t a_dim,
+                 const std::vector<bn_t>& aNumbers,
+                 const std::vector<TC>& aMins,
+                 const std::vector<TC>& aMaxs) {
+    // Clear :
+    raw_clear(parent::m_bins);
+    parent::m_axes.clear();
+    parent::m_dimension = 0;
+    parent::m_annotations.clear();
+    
+    // Some checks :
+    if(!a_dim) return false;
+    parent::m_axes.resize(a_dim);
+    // Setup axes :
+    for(dim_t iaxis=0;iaxis<a_dim;iaxis++) { 
+      if(!parent::m_axes[iaxis].configure(aNumbers[iaxis],aMins[iaxis],aMaxs[iaxis])) {
+        // do not do :
+        //   m_axes.clear()
+        // so that :
+        //   b1::axis(),b2::axis_[x,y]()
+        // do not crash in case of a bad booking.
+        //m_axes.clear();
+        return false;
+      }
+    }
+  
+    parent::m_dimension = a_dim;
+
+    base_allocate();
+
+    return true;
+  }
+
+  bool configure(dim_t a_dim,const std::vector< std::vector<TC> >& aEdges) {
+    // Clear :
+    raw_clear(parent::m_bins);
+    parent::m_axes.clear();
+    parent::m_dimension = 0;
+    parent::m_annotations.clear();
+
+    // Some checks :
+    if(!a_dim) return false;
+    parent::m_axes.resize(a_dim);
+    // Setup axes :
+    for(dim_t iaxis=0;iaxis<a_dim;iaxis++) { 
+      if(!parent::m_axes[iaxis].configure(aEdges[iaxis])) {
+        //m_axes.clear();
+        return false;
+      }
+    }
+  
+    parent::m_dimension = a_dim;
+
+    base_allocate();
+
+    return true;
+  }
+
+  void base_reset() {raw_clear(parent::m_bins);}
+
+protected:
+  void base_allocate() {
+    parent::m_axes[0].m_offset = 1;
+   {for(dim_t iaxis=1;iaxis<parent::m_dimension;iaxis++) {
+      parent::m_axes[iaxis].m_offset = parent::m_axes[iaxis-1].m_offset * (parent::m_axes[iaxis-1].bins()+2);
+    }}
+  }
+
+public:
+  TN get_entries() const {
+    TN number = 0;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      if(!histo::is_out(parent::m_axes,(*it).first)) {
+        number += (*it).second->m_entries;
+      }
+    }}
+    return number;
+  }
+  TW get_Sw() const {
+    TW sw = 0;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      if(!histo::is_out(parent::m_axes,(*it).first)) {
+        sw += (*it).second->m_Sw;
+      }
+    }}
+    return sw;
+  }
+
+  TW get_Sw2() const {
+    TW sw2 = 0;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      if(!histo::is_out(parent::m_axes,(*it).first)) {
+        sw2 += (*it).second->m_Sw2;
+      }
+    }}
+    return sw2;
+  }
+
+  bool get_ith_axis_Sxw(dim_t a_axis,TC& a_value) const {
+    a_value = 0;
+    if(a_axis>=parent::m_dimension) return false;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      if(!histo::is_out(parent::m_axes,(*it).first)) {
+        a_value += (*it).second->m_Sxw[a_axis];
+      }
+    }}
+    return true;
+  }
+
+  bool get_ith_axis_Sx2w(dim_t a_axis,TC& a_value) const {
+    a_value = 0;
+    if(a_axis>=parent::m_dimension) return false;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      if(!histo::is_out(parent::m_axes,(*it).first)) {
+        a_value += (*it).second->m_Sx2w[a_axis];
+      }
+    }}
+    return true;
+  }
+
+  TN get_all_entries() const {
+    TN number = 0;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      number += (*it).second->m_entries;
+    }}
+    return number;
+  }
+
+  bool find_bin(TO a_offset,bin_t*& a_bin) const {
+    typedef typename std::map<TO,bin_t*>::const_iterator it_t;
+    it_t it = parent::m_bins.find(a_offset);
+    if(it==parent::m_bins.end()) {a_bin = 0;return false;}
+    a_bin = (*it).second;
+    return true;
+  }
+
+  //const std::map<TO,bin_t*>& bins() const {return m_bins;}
+
+public:
+  const axis_t& get_axis(int aIndex) const {return parent::m_axes[aIndex];}
+  const std::string& get_title() const {return parent::m_title;}
+  dim_t get_dimension() const {return parent::m_dimension;}
+  bool is_valid() const {return (parent::m_dimension?true:false);}
+
+public: //annotations :
+  typedef std::map<std::string,std::string> annotations_t;
+  const annotations_t& annotations() const {return parent::m_annotations;}
+  annotations_t annotations() {return parent::m_annotations;}
+
+  void add_annotation(const std::string& a_key,const std::string& a_value) {
+    parent::m_annotations[a_key] = a_value; //override if a_key already exists.
+  }
+  bool annotation(const std::string& a_key,std::string& a_value) const {
+    annotations_t::const_iterator it = parent::m_annotations.find(a_key);
+    if(it==parent::m_annotations.end()) {a_value.clear();return false;}
+    a_value = (*it).second;
+    return true;
+  }
+
+protected:
+  bool is_compatible(const base_shisto& a_histo){
+    if(parent::m_dimension!=a_histo.m_dimension) return false;
+    for(dim_t iaxis=0;iaxis<parent::m_dimension;iaxis++) { 
+      if(!parent::m_axes[iaxis].is_compatible(a_histo.m_axes[iaxis])) return false;
+    }
+    return true;
+  }
+
+  void base_add(const base_shisto& a_from){
+    // The only histogram operation that makes sense.
+   {inlib_typename_mforcit(TO,bin_t*,a_from.m_bins,it_t,it) {
+      TO from_offset = (*it).first;
+      bin_t* this_bin;
+      if(find_bin(from_offset,this_bin)) {
+        this_bin->add((*it).second);
+      } else {
+        parent::m_bins[from_offset] = (*it).second->copy();
+      }
+    }}
+  }
+
+  void base_multiply(TW a_factor) {
+    inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      (*it).second->multiply(a_factor);
+    }
+  }
+
+  bool get_ith_axis_mean(dim_t a_axis,TC& a_value) const {
+    a_value = 0;
+    if(a_axis>=parent::m_dimension) return false;
+    TW sw = 0;
+    TC sxw = 0;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      if(!histo::is_out(parent::m_axes,(*it).first)) {
+        sw += (*it).second->m_Sw;
+        sxw += (*it).second->m_Sxw[a_axis];
+      }
+    }}
+    if(sw==0) return false;
+    a_value = sxw/sw;
+    return true;
+  }
+
+  bool get_ith_axis_rms(dim_t a_axis,TC& a_value) const {
+    a_value = 0;
+    if(a_axis>=parent::m_dimension) return false;
+    TW sw = 0;
+    TC sxw = 0;
+    TC sx2w = 0;
+   {inlib_typename_mforcit(TO,bin_t*,parent::m_bins,it_t,it) {
+      if(!histo::is_out(parent::m_axes,(*it).first)) {
+        sw += (*it).second->m_Sw;
+        sxw += (*it).second->m_Sxw[a_axis];
+        sx2w += (*it).second->m_Sx2w[a_axis];
+      }
+    }}
+    if(sw==0) return false;
+    TC mean = sxw/sw;
+    a_value = ::sqrt(::fabs((sx2w / sw) - mean * mean));
+    return true;
+  }
+
+  bool get_bin_entries(const std::vector<int>& aIs,TN& a_value) const {
+    TO offset;
+    if(!get_offset(aIs,offset)) {a_value = 0;return false;}
+    bin_t* bin;
+    if(!find_bin(offset,bin)) {a_value = 0;return false;}
+    a_value = bin->m_entries;
+    return true;
+  }
+};
+
+}}
+
+#endif

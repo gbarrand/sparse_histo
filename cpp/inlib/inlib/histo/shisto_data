@@ -1,0 +1,150 @@
+// Copyright (C) 2010, Guy Barrand. All rights reserved.
+// See the file inlib.license for terms.
+
+#ifndef inlib_histo_shisto_data
+#define inlib_histo_shisto_data
+
+#ifdef INLIB_MEM
+#include "../mem"
+#endif
+
+#include "../mapmanip"
+#include "axis"
+#include <map>
+
+namespace inlib {
+namespace histo {
+
+//TC is for a coordinate.
+//TO is for an offset/index to identify/find a bind.
+//TN is for a number of entries.
+//TW is for a weight.
+
+template <class TC,class TN,class TW>
+class sbin {
+  static const std::string& s_class() {
+    static const std::string s_v("inlib::histo::sbin");
+    return s_v;
+  }
+public:
+  typedef unsigned int dim_t;
+public:
+  sbin(dim_t a_dim)
+  :m_dimension(a_dim)
+  ,m_entries(0)
+  ,m_Sw(0)
+  ,m_Sw2(0)
+  {
+#ifdef INLIB_MEM
+    mem::increment(s_class().c_str());
+#endif
+    m_Sxw.resize(m_dimension,0);
+    m_Sx2w.resize(m_dimension,0);
+  }
+  virtual ~sbin(){
+#ifdef INLIB_MEM
+    mem::decrement(s_class().c_str());
+#endif
+  }
+public:
+  sbin(const sbin& a_from)
+  :m_dimension(a_from.m_dimension)
+  ,m_entries(a_from.m_entries)
+  ,m_Sw(a_from.m_Sw)
+  ,m_Sw2(a_from.m_Sw2)
+  ,m_Sxw(a_from.m_Sxw)
+  ,m_Sx2w(a_from.m_Sx2w)
+  {
+#ifdef INLIB_MEM
+    mem::increment(s_class().c_str());
+#endif
+  }
+
+  sbin& operator=(const sbin& a_from) {
+    m_dimension = a_from.m_dimension;
+    m_entries = a_from.m_entries;
+    m_Sw = a_from.m_Sw;
+    m_Sw2 = a_from.m_Sw2;
+    m_Sxw = a_from.m_Sxw;
+    m_Sx2w = a_from.m_Sx2w;
+    return *this;
+  }
+
+public:
+  sbin* copy(){return new sbin(*this);}
+public:
+  const TN entries() const {return m_entries;}
+  const TW Sw() const {return m_Sw;}
+  const TW Sw2() const {return m_Sw2;}
+  const std::vector<TC>& Sxw() const {return m_Sxw;}
+  const std::vector<TC>& Sx2w() const {return m_Sx2w;}
+public:
+  void add(const sbin& a_bin){
+    m_entries += a_bin.m_entries;
+    m_Sw += a_bin.m_Sw;    
+    m_Sw2 += a_bin.m_Sw2;      
+    for(dim_t iaxis=0;iaxis<m_dimension;iaxis++) {
+      m_Sxw[iaxis] += a_bin.m_Sxw[iaxis];
+      m_Sx2w[iaxis] += a_bin.m_Sx2w[iaxis];
+    }
+  }
+
+  void multiply(TW a_factor) {
+    m_Sw *= a_factor;
+    m_Sw2 *= a_factor * a_factor;
+    for(dim_t iaxis=0;iaxis<m_dimension;iaxis++) {
+      m_Sxw[iaxis] *= a_factor;
+      m_Sx2w[iaxis] *= a_factor;
+    }
+  }
+protected:
+  dim_t m_dimension;
+public:
+  TN m_entries;
+  TW m_Sw;
+  TW m_Sw2;
+  std::vector<TC> m_Sxw;
+  std::vector<TC> m_Sx2w;
+};
+
+template <class TC,class TO,class TN,class TW>
+class shisto_data {
+public:
+  typedef axis<TC,TO> axis_t;
+  typedef unsigned int dim_t;
+  typedef sbin<TC,TN,TW> bin_t;
+  typedef std::map<std::string,std::string> annotations_t;
+public:
+  shisto_data():m_dimension(0){}
+  virtual ~shisto_data(){raw_clear(m_bins);}
+public:
+  shisto_data(const shisto_data& a_from)
+  :m_title(a_from.m_title)
+  ,m_dimension(a_from.m_dimension)
+  ,m_bins()
+  ,m_axes(a_from.m_axes)
+  ,m_annotations(a_from.m_annotations)
+  {
+    copy(m_bins,a_from.m_bins);
+  }
+
+  shisto_data& operator=(const shisto_data& a_from) {
+    m_title = a_from.m_title;
+    m_dimension = a_from.m_dimension;
+    copy(m_bins,a_from.m_bins);
+    m_axes = a_from.m_axes;
+    m_annotations = a_from.m_annotations;
+    return *this;
+  }
+
+public:
+  std::string m_title;
+  dim_t m_dimension;
+  std::map<TO,bin_t*> m_bins;
+  std::vector<axis_t> m_axes;
+  annotations_t m_annotations;
+};
+
+}}
+
+#endif

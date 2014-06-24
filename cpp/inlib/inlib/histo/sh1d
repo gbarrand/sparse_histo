@@ -1,0 +1,46 @@
+// Copyright (C) 2010, Guy Barrand. All rights reserved.
+// See the file inlib.license for terms.
+
+#ifndef inlib_histo_sh1d
+#define inlib_histo_sh1d
+
+#include "sh1"
+#include "../typedefs"
+
+namespace inlib {
+namespace histo {
+
+// d in h1d is for double (and not dimension).
+
+class sh1d : public sh1<double,uint64,unsigned int,double,double> {
+  typedef sh1<double,uint64,unsigned int,double,double> parent;
+public:
+  static const std::string& s_class() {
+    static const std::string s_v("inlib::histo::sh1d");
+    return s_v;
+  }
+public:
+  sh1d(const std::string& a_title,unsigned int aXnumber,double aXmin,double aXmax)
+  :parent(a_title,aXnumber,aXmin,aXmax){}
+
+  sh1d(const std::string& a_title,const std::vector<double>& aEdges)
+  :parent(a_title,aEdges){}
+
+  virtual ~sh1d(){}
+public:
+  sh1d(const sh1d& a_from): parent(a_from){}
+  sh1d& operator=(const sh1d& a_from){
+    parent::operator=(a_from);
+    return *this;
+  }
+
+private:static void check_instantiation() {sh1d h("",10,0,1);h.fill(0.5,1);}
+};
+
+}}
+
+#endif
+
+
+
+

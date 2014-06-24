@@ -1,0 +1,49 @@
+// Copyright (C) 2010, Guy Barrand. All rights reserved.
+// See the file inlib.license for terms.
+
+#ifndef inlib_histo_sh2d
+#define inlib_histo_sh2d
+
+#include "sh2"
+#include "../typedefs"
+
+namespace inlib {
+namespace histo {
+
+class sh2d : public sh2<double,uint64,unsigned int,double,double> {
+  typedef sh2<double,uint64,unsigned int,double,double> parent;
+public:
+  static const std::string& s_class() {
+    static const std::string s_v("inlib::histo::sh2d");
+    return s_v;
+  }
+public:
+  sh2d(const std::string& a_title,
+       unsigned int aXnumber,double aXmin,double aXmax,
+       unsigned int aYnumber,double aYmin,double aYmax)
+  :parent(a_title,aXnumber,aXmin,aXmax,aYnumber,aYmin,aYmax)
+  {}
+  sh2d(const std::string& a_title,
+       const std::vector<double>& aEdgesX,
+       const std::vector<double>& aEdgesY)
+  :parent(a_title,aEdgesX,aEdgesY)
+  {}
+
+  virtual ~sh2d(){}
+public:
+  sh2d(const sh2d& a_from): parent(a_from){}
+  sh2d& operator=(const sh2d& a_from){
+    parent::operator=(a_from);
+    return *this;
+  }
+
+private:static void check_instantiation() {sh2d dummy("",10,0,1,10,0,1);}
+};
+
+}}
+
+#endif
+
+
+
+
