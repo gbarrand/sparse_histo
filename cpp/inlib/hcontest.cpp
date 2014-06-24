@@ -20,7 +20,7 @@ int main(int argc,char** argv) {
   inlib::mem::set_check_by_class(true);{
 #endif //INLIB_MEM
 
-  unsigned int entries = 1000000;
+  unsigned int entries = 10000000;
 
   ////////////////////////////////////////
   /// h1d ///////////////////////////////
