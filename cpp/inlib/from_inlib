@@ -14,6 +14,7 @@ cd ${build_dir}
 cd example
 from=${save_dir}/../../../inexlib/inlib/examples/cpp
 /bin/cp ${from}/shisto.cpp .
+/bin/cp ${from}/histo.cpp .
 
 # histo :
 /bin/mkdir -p ${build_dir}/inlib/histo
@@ -32,6 +33,13 @@ from=${save_dir}/../../../inexlib/inlib/inlib/histo
 /bin/cp ${from}/h2d .
 /bin/cp ${from}/h3 .
 /bin/cp ${from}/h3d .
+
+/bin/cp ${from}/profile_data .
+/bin/cp ${from}/p1 .
+/bin/cp ${from}/p1d .
+/bin/cp ${from}/slice .
+/bin/cp ${from}/sliced .
+
 /bin/cp ${from}/shisto_data .
 /bin/cp ${from}/base_shisto .
 /bin/cp ${from}/sb1 .
