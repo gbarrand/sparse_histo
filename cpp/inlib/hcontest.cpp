@@ -10,8 +10,11 @@
 #include <inlib/histo/sh1d>
 #include <inlib/histo/sh2d>
 
-#include <inlib/randd>
 #include <inlib/sys/atime>
+
+#ifdef INLIB_USE_RANDOM
+#include <inlib/randd>
+#endif
 
 #include <iostream>
 
@@ -26,10 +29,14 @@ int main(int argc,char** argv) {
   /// h1d ///////////////////////////////
   ////////////////////////////////////////
  {
-   inlib::rgaussd rg(1,2);
-   inlib::histo::h1d h("Gauss",100,-5,5);
+   inlib::histo::h1d h("h1d",100,-5,5);
    inlib::atime start = inlib::atime::now();
+#ifdef INLIB_USE_RANDOM
+   inlib::rgaussd rg(1,2);
    for(unsigned int count=0;count<entries;count++) h.fill(rg.shoot(),1.4);
+#else
+   for(unsigned int count=0;count<entries;count++) h.fill(double(count%10)-5.0,1.4);
+#endif
    std::cout << "h1d.fill(" << entries << ") " << inlib::atime::elapsed(start).time_string() << std::endl;
  }
 
@@ -37,11 +44,19 @@ int main(int argc,char** argv) {
   /// h2d ///////////////////////////////
   ////////////////////////////////////////
  {
+   inlib::histo::h2d h("h2d",100,-5,5,100,-2,2);
+   inlib::atime start = inlib::atime::now();
+#ifdef INLIB_USE_RANDOM
    inlib::rgaussd rg(1,2);
    inlib::rbwd rbw(0,1);
-   inlib::histo::h2d h("Gauss_BW",100,-5,5,100,-2,2);
-   inlib::atime start = inlib::atime::now();
    for(unsigned int count=0;count<entries;count++) h.fill(rg.shoot(),rbw.shoot(),0.8);
+#else
+   double v;
+   for(unsigned int count=0;count<entries;count++) {
+     v = double(count%10);
+     h.fill(v-5,(v-5)*0.5,0.8);
+   }
+#endif
    std::cout << "h2d.fill(" << entries << ") " << inlib::atime::elapsed(start).time_string() << std::endl;
  }
 
@@ -49,10 +64,14 @@ int main(int argc,char** argv) {
   /// sh1d ///////////////////////////////
   ////////////////////////////////////////
  {
-   inlib::rgaussd rg(1,2);
-   inlib::histo::sh1d h("Gauss",100,-5,5);
+   inlib::histo::sh1d h("sh1d",100,-5,5);
    inlib::atime start = inlib::atime::now();
+#ifdef INLIB_USE_RANDOM
+   inlib::rgaussd rg(1,2);
    for(unsigned int count=0;count<entries;count++) h.fill(rg.shoot(),1.4);
+#else
+   for(unsigned int count=0;count<entries;count++) h.fill(double(count%10)-5.0,1.4);
+#endif
    std::cout << "sh1d.fill(" << entries << ") " << inlib::atime::elapsed(start).time_string() << std::endl;
  }
 
@@ -60,11 +79,19 @@ int main(int argc,char** argv) {
   /// sh2d ///////////////////////////////
   ////////////////////////////////////////
  {
+   inlib::histo::sh2d h("sh2d",100,-5,5,100,-2,2);
+   inlib::atime start = inlib::atime::now();
+#ifdef INLIB_USE_RANDOM
    inlib::rgaussd rg(1,2);
    inlib::rbwd rbw(0,1);
-   inlib::histo::sh2d h("Gauss_BW",100,-5,5,100,-2,2);
-   inlib::atime start = inlib::atime::now();
    for(unsigned int count=0;count<entries;count++) h.fill(rg.shoot(),rbw.shoot(),0.8);
+#else
+   double v;
+   for(unsigned int count=0;count<entries;count++) {
+     v = double(count%10);
+     h.fill(v-5,(v-5)*0.5,0.8);
+   }
+#endif
    std::cout << "sh2d.fill(" << entries << ") " << inlib::atime::elapsed(start).time_string() << std::endl;
  }
 
