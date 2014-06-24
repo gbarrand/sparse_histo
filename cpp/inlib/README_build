@@ -1,0 +1,4 @@
+
+c++ -O -I. hcontest.cpp
+./a.out
+
