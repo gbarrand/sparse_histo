@@ -34,16 +34,10 @@ int main(int argc,char** argv) {
    inlib::histo::sh1d h("Gauss",100,-5,5);
    inlib::atime start = inlib::atime::now();
    for(unsigned int count=0;count<entries;count++) h.fill(rg.shoot(),1.4);
-   std::cout << "sh1d.fill(" << entries << ") " << inlib::atime::elapsed(start).time_string() << std::endl;
 
+   std::cout << "sh1d.fill(" << entries << ") " << inlib::atime::elapsed(start).time_string() << std::endl;
    if(print) h.hprint(std::cout);
    //std::cout << " mean " << h.mean() << ", rms " << h.rms() << std::endl;
-
-   /*
-  {unsigned int nbin = h.axis().bins();
-   double mn = h.axis().lower_edge();
-   double mx = h.axis().upper_edge();}
-   */
 
  }
 
@@ -56,18 +50,10 @@ int main(int argc,char** argv) {
    inlib::histo::sh2d h("Gauss_BW",100,-5,5,100,-2,2);
    inlib::atime start = inlib::atime::now();
    for(unsigned int count=0;count<entries;count++) h.fill(rg.shoot(),rbw.shoot(),0.8);
+
    std::cout << "sh2d.fill(" << entries << ") " << inlib::atime::elapsed(start).time_string() << std::endl;
    if(print) h.hprint(std::cout);
 
-   /*
-  {unsigned int nbin = h.axis_x().bins();
-   double mn = h.axis_x().lower_edge();
-   double mx = h.axis_x().upper_edge();}
-
-  {unsigned int nbin = h.axis_y().bins();
-   double mn = h.axis_y().lower_edge();
-   double mx = h.axis_y().upper_edge();}
-   */
  }
 
   //////////////////////////////////////////////////////////
