@@ -1,4 +1,4 @@
 sparse_histo
 ============
 
-To test a sparse histogram implementation with various languages
+To test sparse histogram implementations done in various languages
