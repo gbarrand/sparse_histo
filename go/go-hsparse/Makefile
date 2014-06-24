@@ -10,7 +10,7 @@ build:
 	@go build $(GOFLAGS) ./...
 
 install:
-	@go get $(GOFLAGS) ./...
+	@go build $(GOFLAGS) ./...
 
 test: install
 	@go test $(GOFLAGS) ./...
@@ -19,6 +19,6 @@ clean:
 	@go clean $(GOFLAGS) -i ./...
 
 run: install
-	@go-hsparse
+	@./go-hsparse
 
 ## EOF
