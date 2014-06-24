@@ -1,6 +1,7 @@
 
 by hand :
-  UNIX> c++ -O2 -I. hcontest.cpp
+  UNIX> c++ -O3 -I. hcontest.cpp
+ (UNIX> c++ -O3 -I. -DINLIB_USE_RANDOM hcontest.cpp )
   UNIX> ./a.out
 
 or :
