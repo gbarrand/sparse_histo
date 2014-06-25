@@ -85,7 +85,7 @@ int main(int argc,char** argv) {
    inlib::rgaussd rg(1,2);
    inlib::rbwd rbw(0,1);
 //{for(unsigned int count=0;count<entries;count++) h.fill(rg.shoot(),rbw.shoot(),0.8);}
-   // store values first in order to bench only the histo filling :
+   // store values first in a vector in order to bench only the histo filling :
    typedef std::pair<double,double> vals_t;
    std::vector<vals_t> vs(entries); //ouch !
   {for(unsigned int count=0;count<entries;count++) vs[count] = vals_t(rg.shoot(),rbw.shoot());}
