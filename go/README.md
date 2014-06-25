@@ -9,7 +9,9 @@ analysis library.)
 Install `go` and then:
 
 ```sh
-$ go get github.com/gbarrand/sparse_histo/...
+$ git clone git://github.com/gbarrand/sparse_histo
+$ cd sparse_histo/go
+$ make
 ```
 
 ## Use
