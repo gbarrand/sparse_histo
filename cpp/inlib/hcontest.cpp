@@ -10,6 +10,7 @@
 #include <inlib/histo/sh1d>
 #include <inlib/histo/sh2d>
 
+#include <inlib/forit>
 #include <inlib/randd>
 #include <inlib/vdata>
 #include <inlib/sys/atime>
@@ -21,7 +22,7 @@ int main(int argc,char** argv) {
   inlib::mem::set_check_by_class(true);{
 #endif //INLIB_MEM
 
-  unsigned int entries = 10000000;
+  unsigned int entries = 100000000;
 
   // ouch ! store events first in a vector in order to bench only the histo filling :
   typedef std::pair<double,double> vals_t;
@@ -36,8 +37,7 @@ int main(int argc,char** argv) {
  {
    inlib::histo::h1d h("h1d",100,-5,5);
    inlib::atime start = inlib::atime::now();
-  {vals_t* p = inlib::vec_data(vs);
-   for(unsigned int count=0;count<entries;count++,p++) h.fill(p->first,1.4);}
+   inlib_vforcit(vals_t,vs,it) h.fill((*it).first,1.4);
    std::cout << "h1d.fill(" << entries << ") " << inlib::atime::elapsed(start).time_string() << std::endl;
  }
 
@@ -47,8 +47,7 @@ int main(int argc,char** argv) {
  {
    inlib::histo::h2d h("h2d",100,-5,5,100,-2,2);
    inlib::atime start = inlib::atime::now();
-  {vals_t* p = inlib::vec_data(vs);
-   for(unsigned int count=0;count<entries;count++,p++) h.fill(p->first,p->second,0.8);}
+   inlib_vforcit(vals_t,vs,it) h.fill((*it).first,(*it).second,0.8);
    std::cout << "h2d.fill(" << entries << ") " << inlib::atime::elapsed(start).time_string() << std::endl;
  }
 
@@ -58,8 +57,7 @@ int main(int argc,char** argv) {
  {
    inlib::histo::sh1d h("sh1d",100,-5,5);
    inlib::atime start = inlib::atime::now();
-  {vals_t* p = inlib::vec_data(vs);
-   for(unsigned int count=0;count<entries;count++,p++) h.fill(p->first,1.4);}
+   inlib_vforcit(vals_t,vs,it) h.fill((*it).first,1.4);
    std::cout << "sh1d.fill(" << entries << ") " << inlib::atime::elapsed(start).time_string() << std::endl;
  }
 
@@ -69,8 +67,7 @@ int main(int argc,char** argv) {
  {
    inlib::histo::sh2d h("sh2d",100,-5,5,100,-2,2);
    inlib::atime start = inlib::atime::now();
-  {vals_t* p = inlib::vec_data(vs);
-   for(unsigned int count=0;count<entries;count++,p++) h.fill(p->first,p->second,0.8);}
+   inlib_vforcit(vals_t,vs,it) h.fill((*it).first,(*it).second,0.8);
    std::cout << "sh2d.fill(" << entries << ") " << inlib::atime::elapsed(start).time_string() << std::endl;
  }
 
