@@ -26,6 +26,13 @@ int main(int argc,char** argv) {
 
   unsigned int entries = 10000000;
 
+  // store events first in a vector in order to bench only the histo filling :
+  typedef std::pair<double,double> vals_t;
+  std::vector<vals_t> vs2(entries); //ouch !
+ {inlib::rgaussd rg(1,2);
+  inlib::rbwd rbw(0,1);
+  for(unsigned int count=0;count<entries;count++) vs2[count] = vals_t(rg.shoot(),rbw.shoot());}
+
   ////////////////////////////////////////
   /// h1d ///////////////////////////////
   ////////////////////////////////////////
@@ -46,19 +53,11 @@ int main(int argc,char** argv) {
   ////////////////////////////////////////
  {
    inlib::histo::h2d h("h2d",100,-5,5,100,-2,2);
-#ifdef INLIB_USE_RANDOM
-   inlib::rgaussd rg(1,2);
-   inlib::rbwd rbw(0,1);
- //for(unsigned int count=0;count<entries;count++) h.fill(rg.shoot(),rbw.shoot(),0.8);
-   // store events first in a vector in order to bench only the histo filling :
-   typedef std::pair<double,double> vals_t;
-   std::vector<vals_t> vs(entries); //ouch !
-  {for(unsigned int count=0;count<entries;count++) vs[count] = vals_t(rg.shoot(),rbw.shoot());}
    inlib::atime start = inlib::atime::now();
-  {vals_t* p = inlib::vec_data(vs);
+#ifdef INLIB_USE_RANDOM
+  {vals_t* p = inlib::vec_data(vs2);
    for(unsigned int count=0;count<entries;count++,p++) h.fill(p->first,p->second,0.8);}
 #else
-   inlib::atime start = inlib::atime::now();
   {double v;
    for(unsigned int count=0;count<entries;count++) {
      v = double(count%10);
@@ -88,19 +87,11 @@ int main(int argc,char** argv) {
   ////////////////////////////////////////
  {
    inlib::histo::sh2d h("sh2d",100,-5,5,100,-2,2);
-#ifdef INLIB_USE_RANDOM
-   inlib::rgaussd rg(1,2);
-   inlib::rbwd rbw(0,1);
-//{for(unsigned int count=0;count<entries;count++) h.fill(rg.shoot(),rbw.shoot(),0.8);}
-   // store events first in a vector in order to bench only the histo filling :
-   typedef std::pair<double,double> vals_t;
-   std::vector<vals_t> vs(entries); //ouch !
-  {for(unsigned int count=0;count<entries;count++) vs[count] = vals_t(rg.shoot(),rbw.shoot());}
    inlib::atime start = inlib::atime::now();
-  {vals_t* p = inlib::vec_data(vs);
+#ifdef INLIB_USE_RANDOM
+  {vals_t* p = inlib::vec_data(vs2);
    for(unsigned int count=0;count<entries;count++,p++) h.fill(p->first,p->second,0.8);}
 #else
-   inlib::atime start = inlib::atime::now();
   {double v;
    for(unsigned int count=0;count<entries;count++) {
      v = double(count%10);
