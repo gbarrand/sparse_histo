@@ -74,7 +74,7 @@ from=${save_dir}/../../../inexlib/inlib/inlib/sys
 #//////////////////////////////////////////////
 cd ${build_dir}
 from=${save_dir}/../../../inexlib/exlib/examples/cern_root
-/bin/cp ${from}/hcontest.C .
+/bin/cp ${from}/hcontest.cling .
 
 cd ${save_dir}
 
