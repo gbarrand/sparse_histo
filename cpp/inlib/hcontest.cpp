@@ -21,7 +21,7 @@ int main(int argc,char** argv) {
   inlib::mem::set_check_by_class(true);{
 #endif //INLIB_MEM
 
-  unsigned int entries = 100000000;
+  unsigned int entries = 10000000;
 
   // ouch ! store events first in a vector in order to bench only the histo filling :
   typedef std::pair<double,double> vals_t;

@@ -1,7 +1,11 @@
 // Copyright (C) 2010, Guy Barrand. All rights reserved.
 // See the file inlib.license for terms.
 
-/*
+// usage :
+//   UNIX> <setup CERN-ROOT>
+//   root> ./include <install_path>/inlib
+//   root> .x hcontest.C
+
 #include <inlib/histo/h1d>
 #include <inlib/histo/h2d>
 #include <inlib/histo/sh1d>
@@ -10,20 +14,9 @@
 #include <inlib/forit>
 #include <inlib/randd>
 #include <inlib/sys/atime>
-*/
-#include "inlib/histo/h1d"
-#include "inlib/histo/h2d"
-#include "inlib/histo/sh1d"
-#include "inlib/histo/sh2d"
-
-#include "inlib/forit"
-#include "inlib/randd"
-#include "inlib/sys/atime"
-
-//#include <iostream>
 
 int hcontest() {
-  unsigned int entries = 100000000;
+  unsigned int entries = 10000000;
 
   // ouch ! store events first in a vector in order to bench only the histo filling :
   typedef std::pair<double,double> vals_t;
