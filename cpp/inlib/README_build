@@ -8,6 +8,6 @@ or :
   UNIX> make
 
 With cling from CERN-ROOT-6 :
-  UNIX> <source setup CERN-ROOT-6>
+  UNIX> <setup CERN-ROOT-6>
   root> ./include <install_path>/inlib
   root> .x hcontest.cling
