@@ -2,7 +2,7 @@
 // See the file inlib.license for terms.
 
 // usage :
-//   UNIX> <setup CERN-ROOT>
+//   UNIX> <setup CERN-ROOT-6>
 //   root> ./include <install_path>/inlib
 //   root> .x hcontest.C
 

@@ -9,4 +9,4 @@ or :
 
 with cling from CERN-ROOT-6 :
   UNIX> <source setup CERN-ROOT-6>
-  UNIX> root ./hcontest.C
+  UNIX> root ./hcontest.cling
