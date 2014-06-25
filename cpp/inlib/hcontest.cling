@@ -4,7 +4,7 @@
 // usage :
 //   UNIX> <setup CERN-ROOT-6>
 //   root> ./include <install_path>/inlib
-//   root> .x hcontest.C
+//   root> .x hcontest.cling
 
 #include <inlib/histo/h1d>
 #include <inlib/histo/h2d>
