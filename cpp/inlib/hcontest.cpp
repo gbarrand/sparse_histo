@@ -13,6 +13,7 @@
 #include <inlib/forit>
 #include <inlib/randd>
 #include <inlib/sys/atime>
+#include <inlib/sto>
 
 #include <iostream>
 
@@ -22,6 +23,9 @@ int main(int argc,char** argv) {
 #endif //INLIB_MEM
 
   unsigned int entries = 10000000;
+  if(argc==2) {
+    if(!inlib::to<unsigned int>(argv[1],entries,10000000)) entries = 10000000;
+  }
 
   // ouch ! store events first in a vector in order to bench only the histo filling :
   typedef std::pair<double,double> vals_t;
