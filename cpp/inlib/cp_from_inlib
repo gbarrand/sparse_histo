@@ -64,11 +64,11 @@ from=${save_dir}/../../../inexlib/inlib/inlib
 /bin/cp ${from}/randd .
 /bin/cp ${from}/vdata .
 
-/bin/cp ${from}/args .
-/bin/cp ${from}/sout .
-/bin/cp ${from}/strip .
-/bin/cp ${from}/words .
-/bin/cp ${from}/sto .
+#/bin/cp ${from}/args .
+#/bin/cp ${from}/sout .
+#/bin/cp ${from}/strip .
+#/bin/cp ${from}/words .
+#/bin/cp ${from}/sto .
 
 # inlib/sys :
 /bin/mkdir -p ${build_dir}/inlib/sys
