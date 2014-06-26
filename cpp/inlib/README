@@ -1,3 +1,5 @@
+to build and run
+======
 
 by hand :
   UNIX> c++ -O3 -I. hcontest.cpp
