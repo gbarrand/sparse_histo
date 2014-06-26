@@ -2,6 +2,7 @@
 To build and run by hand :
   UNIX> c++ -O3 -I. hcontest.cpp
   UNIX> ./a.out
+ (UNIX> ./a.out 50000000)
 or :
   UNIX> make
 
