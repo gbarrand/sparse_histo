@@ -7,5 +7,5 @@ or :
 
 To run straight by using the cling interpreter of CERN-ROOT-6 :
   UNIX> <setup CERN-ROOT-6>
-  root> ./include <install_path>/inlib
+  root> .include <install_path>/inlib
   root> .x hcontest.cling
