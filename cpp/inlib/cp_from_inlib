@@ -12,6 +12,7 @@ build_dir=`pwd`
 cd ${build_dir}
 from=${save_dir}/../../../inexlib/inlib/examples/cpp
 /bin/cp ${from}/hcontest.cpp .
+/bin/cp ${from}/gen_data.cpp .
 
 # histo :
 /bin/mkdir -p ${build_dir}/inlib/histo
