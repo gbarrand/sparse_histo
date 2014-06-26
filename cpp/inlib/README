@@ -3,6 +3,12 @@ To build and run by hand :
   UNIX> c++ -O3 -I. hcontest.cpp
   UNIX> ./a.out
  (UNIX> ./a.out 50000000)
+
+or if wanting to take randoms from pre generated files :
+  UNIX> c++ -O3 -I. gen_data.cpp -o gen_data
+  UNIX> ./gen_data # it produces gauss_[1_2,0_1].txt files.
+  UNIX> ./a.out
+
 or :
   UNIX> make
 
