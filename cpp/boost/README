@@ -1,5 +1,5 @@
 
-To build and run by hand :
+To build and run by hand, for example on a Mac with boost under /opt/local :
   UNIX> c++ -O3 -I../inlib -I/opt/local/include boost_shisto.cpp
   UNIX> ./a.out
 
