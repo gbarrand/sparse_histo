@@ -12,7 +12,7 @@ or if wanting to take randoms from pre generated files :
 or :
   UNIX> make
 
-To run straight by using the cling interpreter of CERN-ROOT-6 :
+To run by using the cling interpreter of CERN-ROOT-6 :
   UNIX> <setup CERN-ROOT-6>
   root> .include <install_path>/sparse_histo/cpp
   root> .L hcontest.cpp
