@@ -31,7 +31,7 @@ int main(int argc,char** argv) {
 
  {std::ifstream f1("gauss_1_2.txt");
   std::ifstream f2("gauss_0_1.txt");
-  if(f1.is_open()&&f2.is_open()) {
+  if(f1.is_open()&&f2.is_open()&&(argc!=2)) {
     std::cout << "randoms from files." << std::endl;
     entries = 10000000;
     vs.resize(entries);
